@@ -6,6 +6,7 @@ enum BiteVisual { observe, control, wonder }
 /// Bites are prototype content for now; no backend is connected.
 class LearningBiteData {
   const LearningBiteData({
+    required this.category,
     required this.bookTitle,
     required this.author,
     required this.topic,
@@ -13,8 +14,11 @@ class LearningBiteData {
     required this.keyIdea,
     required this.listenDuration,
     required this.visual,
+    this.passageLines = const [],
+    this.activeLineIndex = 1,
   });
 
+  final String category;
   final String bookTitle;
   final String author;
   final String topic;
@@ -22,4 +26,6 @@ class LearningBiteData {
   final String keyIdea;
   final String listenDuration;
   final BiteVisual visual;
+  final List<String> passageLines;
+  final int activeLineIndex;
 }

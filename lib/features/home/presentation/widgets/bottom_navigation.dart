@@ -15,7 +15,11 @@ class BottomNavigation extends StatelessWidget {
   final ValueChanged<int> onSelect;
 
   static const _items = <_NavItem>[
-    _NavItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Home'),
+    _NavItem(
+      icon: Icons.home_outlined,
+      activeIcon: Icons.home_rounded,
+      label: 'Home',
+    ),
     _NavItem(
       icon: Icons.explore_outlined,
       activeIcon: Icons.explore_rounded,
@@ -35,18 +39,17 @@ class BottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.paper,
-          border: Border(
-            top: BorderSide(
-              color: AppColors.indicatorInactive.withValues(alpha: 0.55),
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.paper,
+        border: Border(
+          top: BorderSide(
+            color: AppColors.indicatorInactive.withValues(alpha: 0.55),
           ),
         ),
-        padding: const EdgeInsets.only(top: 8, bottom: 6),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 6, bottom: 3),
         child: Row(
           children: [
             for (var i = 0; i < _items.length; i++)
@@ -67,12 +70,12 @@ class BottomNavigation extends StatelessWidget {
                               ? AppColors.primaryGreen
                               : AppColors.secondaryText,
                         ),
-                        const SizedBox(height: 3),
+                        const SizedBox(height: 2),
                         Text(
                           _items[i].label,
                           style: TextStyle(
                             fontFamily: AppFonts.sans,
-                            fontSize: 11,
+                            fontSize: 10.5,
                             fontWeight: i == currentIndex
                                 ? FontWeight.w600
                                 : FontWeight.w500,
@@ -85,7 +88,7 @@ class BottomNavigation extends StatelessWidget {
                           duration: const Duration(milliseconds: 200),
                           width: 4,
                           height: 4,
-                          margin: const EdgeInsets.only(top: 2),
+                          margin: const EdgeInsets.only(top: 1),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: i == currentIndex

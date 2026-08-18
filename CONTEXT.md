@@ -34,19 +34,29 @@ navigates to `HomeFeedPage`, a shell with:
 
 - A persistent custom `BottomNavigation` (Home → Learning Feed, Discover, Library,
   Me). Discover/Library/Me are **placeholders** (Screens 05–07 not built yet).
+  Compact by design: content wrapped in `SafeArea` (bottom system inset respected)
+  with `EdgeInsets.only(top: 5, bottom: 2)` and tight icon/label/dot spacing.
 - **Home tab** = `FeedHeader` (Re-Learn wordmark, search icon, For You/Following
   tabs) above a **vertical** `PageView.builder` of full-screen `LearningBite`
-  widgets (one bite per swipe, 3 bites in `mock_bites.dart`).
-- Each bite shows an editorial `LearningBiteIllustration` (CustomPaint line art,
-  3 variants keyed by `BiteVisual`: observe / control / wonder), a serif topic,
-  supporting text, a gold "KEY IDEA" block, a Listen chip, book title/author +
-  "Read the full book" link, and a right-edge `LearningBiteActions` rail
+  widgets (one bite per swipe, 8 bites in `mock_bites.dart`).
+- Each bite is an **editorial magazine composition** on the bare canvas — NOT a
+  card. Hierarchy (top→bottom): small letterspaced-caps category kicker
+  (e.g. `OBSERVATION`), large serif headline, `LearningBiteIllustration`
+  (CustomPaint line art, observe/control/wonder motifs), 2-line explanation,
+  gold hairline rule + `KEY IDEA` in serif italics, Listen chip, hairline
+  divider, then the **source book** (serif title + author) with a
+  "Read the full book →" link — the source book is treated as an important
+  literary element, not tiny metadata. A right-edge `LearningBiteActions` rail
   (Like, Discuss, Save, Share — Like/Save toggle locally; the rest show a
   "coming soon" SnackBar via `showComingSoon`).
-- `LearningBite` uses a `FittedBox(scaleDown)` guard so the text block scales
-  instead of overflowing on short/small screens.
+- `LearningBite` uses `FittedBox(scaleDown)` guards around the headline and the
+  body/key-idea block so they scale instead of overflowing on short screens.
+- Design rule: the background is the canvas; whitespace (Spacers) creates
+  hierarchy. No cards, no excess borders/shadows, no gradients.
 
-Content is static mock data — no audio, reader, backend, or auth yet.
+Content is static mock data — no audio, reader, backend, or auth yet. The first
+bite uses canonical editorial copy ("What do you actually see?" /
+"NOTICE FIRST. INTERPRET SECOND.").
 
 ## Architecture
 ```
@@ -69,8 +79,10 @@ lib/
   features/home/
     domain/
       learning_bite.dart         # LearningBiteData model + BiteVisual enum
+                                 #   (category, bookTitle, author, topic/headline,
+                                 #   body, keyIdea, listenDuration, visual)
     data/
-      mock_bites.dart            # 3 static prototype bites
+      mock_bites.dart            # 8 static prototype bites
     presentation/
       pages/
         home_feed_page.dart      # Screen 04 shell + vertical bite feed
@@ -78,7 +90,7 @@ lib/
         library_page.dart        # placeholder (Screen 05, not built)
         me_page.dart             # placeholder (Screen 07, not built)
       widgets/
-        learning_bite.dart       # full-screen bite content
+        learning_bite.dart       # full-screen editorial bite composition
         learning_bite_actions.dart # Like/Discuss/Save/Share rail
         learning_bite_illustration.dart # CustomPaint line art, 3 variants
         feed_header.dart         # wordmark + search + For You/Following

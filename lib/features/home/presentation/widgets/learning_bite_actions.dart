@@ -4,9 +4,16 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import 'coming_soon.dart';
 
-/// Vertical social-action rail shown down the right edge of a Learning Bite.
+/// Social actions for a Learning Bite.
 class LearningBiteActions extends StatefulWidget {
-  const LearningBiteActions({super.key});
+  const LearningBiteActions({
+    super.key,
+    this.compact = false,
+    this.direction = Axis.vertical,
+  });
+
+  final bool compact;
+  final Axis direction;
 
   @override
   State<LearningBiteActions> createState() => _LearningBiteActionsState();
@@ -18,36 +25,54 @@ class _LearningBiteActionsState extends State<LearningBiteActions> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    final actions = [
+      _ActionItem(
+        icon: _liked ? Icons.favorite : Icons.favorite_border,
+        label: 'Like',
+        active: _liked,
+        compact: widget.compact,
+        onTap: () => setState(() => _liked = !_liked),
+      ),
+      _ActionItem(
+        icon: Icons.chat_bubble_outline,
+        label: 'Discuss',
+        active: false,
+        compact: widget.compact,
+        onTap: () => showComingSoon(context, 'Discuss'),
+      ),
+      _ActionItem(
+        icon: _saved ? Icons.bookmark : Icons.bookmark_border,
+        label: 'Save',
+        active: _saved,
+        compact: widget.compact,
+        onTap: () => setState(() => _saved = !_saved),
+      ),
+      _ActionItem(
+        icon: Icons.ios_share,
+        label: 'Share',
+        active: false,
+        compact: widget.compact,
+        onTap: () => showComingSoon(context, 'Share'),
+      ),
+    ];
+
+    return Flex(
+      direction: widget.direction,
       mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _ActionItem(
-          icon: _liked ? Icons.favorite : Icons.favorite_border,
-          label: 'Like',
-          active: _liked,
-          onTap: () => setState(() => _liked = !_liked),
-        ),
-        const SizedBox(height: 22),
-        _ActionItem(
-          icon: Icons.chat_bubble_outline,
-          label: 'Discuss',
-          active: false,
-          onTap: () => showComingSoon(context, 'Discuss'),
-        ),
-        const SizedBox(height: 22),
-        _ActionItem(
-          icon: _saved ? Icons.bookmark : Icons.bookmark_border,
-          label: 'Save',
-          active: _saved,
-          onTap: () => setState(() => _saved = !_saved),
-        ),
-        const SizedBox(height: 22),
-        _ActionItem(
-          icon: Icons.ios_share,
-          label: 'Share',
-          active: false,
-          onTap: () => showComingSoon(context, 'Share'),
-        ),
+        for (var i = 0; i < actions.length; i++) ...[
+          actions[i],
+          if (i < actions.length - 1)
+            SizedBox(
+              width: widget.direction == Axis.horizontal
+                  ? (widget.compact ? 22 : 28)
+                  : 0,
+              height: widget.direction == Axis.vertical
+                  ? (widget.compact ? 16 : 22)
+                  : 0,
+            ),
+        ],
       ],
     );
   }
@@ -58,12 +83,14 @@ class _ActionItem extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.active,
+    required this.compact,
     required this.onTap,
   });
 
   final IconData icon;
   final String label;
   final bool active;
+  final bool compact;
   final VoidCallback onTap;
 
   @override
@@ -77,13 +104,13 @@ class _ActionItem extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 22, color: color),
+            Icon(icon, size: compact ? 20 : 22, color: color),
             const SizedBox(height: 3),
             Text(
               label,
               style: TextStyle(
                 fontFamily: AppFonts.sans,
-                fontSize: 10.5,
+                fontSize: compact ? 10 : 10.5,
                 fontWeight: FontWeight.w500,
                 color: color,
               ),
