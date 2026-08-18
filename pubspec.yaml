@@ -1,0 +1,32 @@
+name: relearn
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.11.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Local font assets pending acquisition (Source Serif 4 + Inter).
+  # Tracked by AppFonts.serif / AppFonts.sans so no code changes are
+  # required once uncommented:
+  #
+  # fonts:
+  #   - family: Source Serif 4
+  #     fonts:
+  #       - asset: assets/fonts/SourceSerif4/SourceSerif4-Regular.ttf
+  #       - asset: assets/fonts/SourceSerif4/SourceSerif4-Bold.ttf
+  #   - family: Inter
+  #     fonts:
+  #       - asset: assets/fonts/Inter/Inter-Medium.ttf
