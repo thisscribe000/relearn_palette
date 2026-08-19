@@ -6,8 +6,8 @@ import '../../../../core/theme/app_theme.dart';
 import '../../data/mock_books.dart';
 import '../../domain/library_book.dart';
 import '../../../book/data/mock_book_details.dart';
-import '../../../book/presentation/pages/book_bites_page.dart';
 import '../../../book/presentation/pages/book_detail_page.dart';
+import '../../../book/presentation/pages/learning_bites_page.dart';
 import '../../../reader/presentation/pages/reader_page.dart';
 import '../widgets/book_cover.dart';
 import '../widgets/coming_soon.dart';
@@ -332,7 +332,7 @@ class _ContinueReadingCard extends StatelessWidget {
                     child: TextButton(
                       onPressed: () => Navigator.of(context).push(
                         MaterialPageRoute<void>(
-                          builder: (_) => BookBitesPage(book: effective),
+                          builder: (_) => LearningBitesPage(book: effective),
                         ),
                       ),
                       child: Text(

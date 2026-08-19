@@ -87,10 +87,18 @@ reading and learning, reached from the Library shelf and continue cards:
   Reading** + **Learn the Book** buttons, About, a numbered **Chapters** list
   with READ/READING status, Learning-bites and Discussion panels (mock
   comments), and a More menu.
-- `BookBitesPage` shows the book's bites as an editorial list (real bites for
-  Sherlock; placeholders for the rest). Content helpers live in
-  `mock_book_details.dart` (`bookDetailFor`, `libraryBookForTitle`,
-  `bitesForBook`, `readerBookFor`).
+- `LearningBitesPage` is the "Learn the Book" destination: a full-screen,
+  focused experience that swipes vertically through the book's learning bites,
+  one per screen. Header shows book title + "1 of 12" and a thin gold
+  exploration-progress line (distinct from reading progress). Each bite is an
+  editorial composition — category kicker, serif headline, explanation,
+  key-idea flourish, "Chapter n · <title>" attribution — with Save (local
+  toggle), Discuss, and Share actions at the foot. Real bites for Sherlock
+  (12, three per chapter) live in `mock_book_bites.dart` via `bookBitesFor`;
+  other books get per-chapter placeholders. Discuss opens the shared mock
+  Discussion sheet (`book_discussion_sheet.dart`) used by both Book Detail and
+  Learning Bites. Content helpers live in `mock_book_details.dart`
+  (`bookDetailFor`, `libraryBookForTitle`, `bitesForBook`, `readerBookFor`).
 
 **Reading progress** — `ReadingStore` (`core/reading`): a ChangeNotifier
 singleton holding one `ReadingSession` (bookTitle/author, chapter & page
@@ -162,14 +170,19 @@ lib/
         reader_settings_panel.dart # Aa sheet (Aa font/size/spacing/theme)
         reader_toc_panel.dart    # chapter list + bites shortcut
         reader_learn_view.dart   # Learn mode bite list
-        bite_list_item.dart      # shared quiet bite row (Learn + BookBites)
+        bite_list_item.dart      # shared quiet bite row (Learn mode)
   features/book/
+    domain/
+      book_bite.dart             # BookBite: chapter-anchored learning bite
     data/
       mock_book_details.dart     # per-book descriptions/chapters/reader/bites
+      mock_book_bites.dart       # 12 real Sherlock bites + bookBitesFor()
     presentation/
       pages/
         book_detail_page.dart    # Book Home: hero, chapters, bites, discussion
-        book_bites_page.dart     # book's learning bites as an editorial list
+        learning_bites_page.dart # full-screen vertical Learning Bites flow
+      widgets/
+        book_discussion_sheet.dart # shared mock Discussion bottom sheet
 ```
 
 ## Design System

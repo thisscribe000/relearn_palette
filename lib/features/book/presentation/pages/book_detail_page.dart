@@ -8,8 +8,10 @@ import '../../../home/presentation/widgets/book_cover.dart';
 import '../../../home/presentation/widgets/coming_soon.dart';
 import '../../../reader/domain/reader_book.dart';
 import '../../../reader/presentation/pages/reader_page.dart';
+import '../../data/mock_book_bites.dart';
 import '../../data/mock_book_details.dart';
-import 'book_bites_page.dart';
+import '../widgets/book_discussion_sheet.dart';
+import 'learning_bites_page.dart';
 
 /// Book Detail / Book Home — the bridge between reading a book and learning
 /// from it. Reached from the Library shelf.
@@ -34,7 +36,7 @@ class BookDetailPage extends StatelessWidget {
         final percent = (progress * 100).round();
         final detail = bookDetailFor(book.title);
         final chapters = readerBookFor(book).chapters;
-        final biteCount = bitesForBook(book).length;
+        final biteCount = bookBitesFor(book).length;
 
         return Scaffold(
           backgroundColor: AppColors.background,
@@ -369,82 +371,13 @@ class BookDetailPage extends StatelessWidget {
   }
 
   void _openBites(BuildContext context) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute<void>(builder: (_) => BookBitesPage(book: book)));
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => LearningBitesPage(book: book)),
+    );
   }
 
   void _openDiscussion(BuildContext context) {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: AppColors.paper,
-      showDragHandle: true,
-      builder: (sheetContext) => SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Discussion',
-                style: TextStyle(
-                  fontFamily: AppFonts.serif,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.primaryGreen,
-                ),
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                'What readers are noticing in this book',
-                style: TextStyle(
-                  fontFamily: AppFonts.sans,
-                  fontSize: 12.5,
-                  color: AppColors.secondaryText,
-                ),
-              ),
-              const SizedBox(height: 16),
-              const _Comment(
-                name: 'Amina',
-                text:
-                    'The slow chapters are the ones that stay. I keep returning '
-                    'to the observation in Chapter 1.',
-              ),
-              const SizedBox(height: 14),
-              const _Comment(
-                name: 'David',
-                text:
-                    'I read it page by page and it changed how I read — not '
-                    'faster, more carefully.',
-              ),
-              const SizedBox(height: 18),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primaryGreen,
-                    side: BorderSide(
-                      color: AppColors.primaryGreen.withValues(alpha: 0.4),
-                    ),
-                    minimumSize: const Size(0, 46),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero,
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.of(sheetContext).pop();
-                    showComingSoon(context, 'Discussion');
-                  },
-                  child: const Text('Add your thought'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    showBookDiscussion(context, bookTitle: book.title);
   }
 
   void _openMoreMenu(BuildContext context) {
@@ -586,52 +519,6 @@ class _SubtleAction extends StatelessWidget {
             color: AppColors.mutedGold,
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _Comment extends StatelessWidget {
-  const _Comment({required this.name, required this.text});
-
-  final String name;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
-      decoration: BoxDecoration(
-        border: Border(
-          left: BorderSide(
-            color: AppColors.mutedGold.withValues(alpha: 0.6),
-            width: 2,
-          ),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            name,
-            style: const TextStyle(
-              fontFamily: AppFonts.sans,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: AppColors.primaryGreen,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            text,
-            style: const TextStyle(
-              fontFamily: AppFonts.serif,
-              fontSize: 14,
-              height: 1.45,
-              color: AppColors.secondaryText,
-            ),
-          ),
-        ],
       ),
     );
   }
