@@ -39,69 +39,72 @@ class BottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.paper,
-        border: Border(
-          top: BorderSide(
-            color: AppColors.indicatorInactive.withValues(alpha: 0.55),
+    return SafeArea(
+      top: false,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.paper,
+          border: Border(
+            top: BorderSide(
+              color: AppColors.indicatorInactive.withValues(alpha: 0.55),
+            ),
           ),
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.only(top: 6, bottom: 3),
-        child: Row(
-          children: [
-            for (var i = 0; i < _items.length; i++)
-              Expanded(
-                child: InkWell(
-                  onTap: () => onSelect(i),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          i == currentIndex
-                              ? _items[i].activeIcon
-                              : _items[i].icon,
-                          size: 22,
-                          color: i == currentIndex
-                              ? AppColors.primaryGreen
-                              : AppColors.secondaryText,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          _items[i].label,
-                          style: TextStyle(
-                            fontFamily: AppFonts.sans,
-                            fontSize: 10.5,
-                            fontWeight: i == currentIndex
-                                ? FontWeight.w600
-                                : FontWeight.w500,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 4, bottom: 2),
+          child: Row(
+            children: [
+              for (var i = 0; i < _items.length; i++)
+                Expanded(
+                  child: InkWell(
+                    onTap: () => onSelect(i),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 3),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            i == currentIndex
+                                ? _items[i].activeIcon
+                                : _items[i].icon,
+                            size: 21,
                             color: i == currentIndex
                                 ? AppColors.primaryGreen
                                 : AppColors.secondaryText,
                           ),
-                        ),
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          width: 4,
-                          height: 4,
-                          margin: const EdgeInsets.only(top: 1),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: i == currentIndex
-                                ? AppColors.mutedGold
-                                : Colors.transparent,
+                          const SizedBox(height: 1),
+                          Text(
+                            _items[i].label,
+                            style: TextStyle(
+                              fontFamily: AppFonts.sans,
+                              fontSize: 10,
+                              fontWeight: i == currentIndex
+                                  ? FontWeight.w600
+                                  : FontWeight.w500,
+                              color: i == currentIndex
+                                  ? AppColors.primaryGreen
+                                  : AppColors.secondaryText,
+                            ),
                           ),
-                        ),
-                      ],
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: 4,
+                            height: 3,
+                            margin: const EdgeInsets.only(top: 1),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: i == currentIndex
+                                  ? AppColors.mutedGold
+                                  : Colors.transparent,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

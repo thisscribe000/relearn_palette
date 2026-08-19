@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../reader/data/mock_reader_book.dart';
+import '../../../reader/presentation/pages/reader_page.dart';
 import '../../domain/learning_bite.dart';
 
 import 'coming_soon.dart';
@@ -11,9 +13,14 @@ import 'coming_soon.dart';
 /// The passage is the main event: surrounding lines stay quiet while the
 /// current line is highlighted like a slow karaoke read-through.
 class LearningBite extends StatefulWidget {
-  const LearningBite({super.key, required this.bite});
+  const LearningBite({
+    super.key,
+    required this.bite,
+    required this.onDiscussionChanged,
+  });
 
   final LearningBiteData bite;
+  final ValueChanged<bool> onDiscussionChanged;
 
   @override
   State<LearningBite> createState() => _LearningBiteState();
@@ -28,7 +35,7 @@ class _LearningBiteState extends State<LearningBite> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: 1);
+    _pageController = PageController(initialPage: 0);
   }
 
   @override
@@ -51,16 +58,8 @@ class _LearningBiteState extends State<LearningBite> {
         return PageView(
           controller: _pageController,
           scrollDirection: Axis.horizontal,
+          onPageChanged: (page) => widget.onDiscussionChanged(page == 1),
           children: [
-            _DiscussionPane(
-              bite: widget.bite,
-              compact: compact,
-              liked: _liked,
-              saved: _saved,
-              onLike: _toggleLike,
-              onSave: _toggleSave,
-              onBackToReading: _showReadingPage,
-            ),
             GestureDetector(
               behavior: HitTestBehavior.opaque,
               onDoubleTap: _doubleTapLike,
@@ -84,6 +83,26 @@ class _LearningBiteState extends State<LearningBite> {
                           ),
                         ),
                         _LearningCue(bite: widget.bite, compact: compact),
+                        SizedBox(height: compact ? 6 : 8),
+                        InkWell(
+                          borderRadius: BorderRadius.circular(4),
+                          onTap: _openReader,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            child: Text(
+                              'Read the full book →',
+                              style: TextStyle(
+                                fontFamily: AppFonts.sans,
+                                fontSize: compact ? 11.5 : 12.5,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.secondaryText,
+                              ),
+                            ),
+                          ),
+                        ),
                         SizedBox(height: compact ? 10 : 14),
                         _AudioProgress(
                           duration: widget.bite.listenDuration,
@@ -108,6 +127,15 @@ class _LearningBiteState extends State<LearningBite> {
                 ],
               ),
             ),
+            _DiscussionPane(
+              bite: widget.bite,
+              compact: compact,
+              liked: _liked,
+              saved: _saved,
+              onLike: _toggleLike,
+              onSave: _toggleSave,
+              onBackToReading: _showReadingPage,
+            ),
           ],
         );
       },
@@ -123,6 +151,14 @@ class _LearningBiteState extends State<LearningBite> {
 
   void _toggleLike() {
     setState(() => _liked = !_liked);
+  }
+
+  void _openReader() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const ReaderPage(book: mockReaderBook),
+      ),
+    );
   }
 
   void _toggleSave() {
@@ -143,7 +179,7 @@ class _LearningBiteState extends State<LearningBite> {
 
   void _showDiscussionPage() {
     _pageController.animateToPage(
-      0,
+      1,
       duration: const Duration(milliseconds: 260),
       curve: Curves.easeOut,
     );
@@ -151,7 +187,7 @@ class _LearningBiteState extends State<LearningBite> {
 
   void _showReadingPage() {
     _pageController.animateToPage(
-      1,
+      0,
       duration: const Duration(milliseconds: 260),
       curve: Curves.easeOut,
     );
@@ -195,7 +231,7 @@ class _DiscussionPane extends StatelessWidget {
             children: [
               IconButton(
                 onPressed: onBackToReading,
-                icon: const Icon(Icons.arrow_forward_rounded),
+                icon: const Icon(Icons.arrow_back_rounded),
                 color: AppColors.primaryGreen,
                 tooltip: 'Back to reading',
               ),

@@ -9,8 +9,9 @@ abstract final class AppFonts {
 
 abstract final class AppTheme {
   static ThemeData get light => ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
+    useMaterial3: true,
+    colorScheme:
+        ColorScheme.fromSeed(
           seedColor: AppColors.primaryGreen,
           surface: AppColors.background,
         ).copyWith(
@@ -19,44 +20,44 @@ abstract final class AppTheme {
           surface: AppColors.background,
           onSurface: AppColors.primaryGreen,
         ),
-        scaffoldBackgroundColor: AppColors.background,
-        filledButtonTheme: FilledButtonThemeData(
-          style: FilledButton.styleFrom(
-            backgroundColor: AppColors.primaryGreen,
-            foregroundColor: AppColors.paper,
-            minimumSize: const Size(0, 52),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            textStyle: const TextStyle(
-              fontFamily: AppFonts.sans,
-              fontWeight: FontWeight.w500,
-              fontSize: 15,
-              height: 1.2,
-              letterSpacing: 0.2,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero,
-            ),
-          ),
+    scaffoldBackgroundColor: AppColors.background,
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: AppColors.primaryGreen,
+        foregroundColor: AppColors.paper,
+        minimumSize: const Size(0, 52),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        textStyle: const TextStyle(
+          fontFamily: AppFonts.sans,
+          fontWeight: FontWeight.w500,
+          fontSize: 15,
+          height: 1.2,
+          letterSpacing: 0.2,
         ),
-        textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(
-            foregroundColor: AppColors.secondaryText,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            textStyle: const TextStyle(
-              fontFamily: AppFonts.sans,
-              fontWeight: FontWeight.w500,
-              fontSize: 14,
-              height: 1.2,
-              decoration: TextDecoration.underline,
-              decorationColor: AppColors.secondaryText,
-            ),
-          ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: AppColors.secondaryText,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        textStyle: const TextStyle(
+          fontFamily: AppFonts.sans,
+          fontWeight: FontWeight.w500,
+          fontSize: 14,
+          height: 1.2,
+          decoration: TextDecoration.underline,
+          decorationColor: AppColors.secondaryText,
         ),
-        textTheme: Typography.blackMountainView.apply(
+      ),
+    ),
+    textTheme: Typography.blackMountainView
+        .apply(
           fontFamily: AppFonts.serif,
           bodyColor: AppColors.primaryGreen,
           displayColor: AppColors.primaryGreen,
-        ).copyWith(
+        )
+        .copyWith(
           displayLarge: TextStyle(
             fontFamily: AppFonts.serif,
             fontWeight: FontWeight.w700,
@@ -88,5 +89,5 @@ abstract final class AppTheme {
             color: AppColors.secondaryText,
           ),
         ),
-      );
+  );
 }

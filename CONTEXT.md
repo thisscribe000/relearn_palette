@@ -15,7 +15,9 @@ The product does NOT replace reading — it helps users understand, revisit,
 and remember what they read.
 
 ## Current Status
-Implemented so far (onboarding visuals + Home Learning Feed; no backend/auth/AI):
+Implemented so far (onboarding + Home Learning Feed + Library + a full Book
+Reader + Book Detail flow with live, session-only reading-position resume;
+no backend/auth/AI/audio yet):
 
 **Onboarding** — a single horizontally swipeable flow with three pages inside ONE
 `PageView`, plus an animated indicator strip at the bottom driven by the
@@ -33,9 +35,9 @@ Implemented so far (onboarding visuals + Home Learning Feed; no backend/auth/AI)
 navigates to `HomeFeedPage`, a shell with:
 
 - A persistent custom `BottomNavigation` (Home → Learning Feed, Discover, Library,
-  Me). Discover/Library/Me are **placeholders** (Screens 05–07 not built yet).
-  Compact by design: content wrapped in `SafeArea` (bottom system inset respected)
-  with `EdgeInsets.only(top: 5, bottom: 2)` and tight icon/label/dot spacing.
+  Me). Discover/Me are **placeholders** (Screens 06–07 not built yet). Compact by
+  design: content wrapped in `SafeArea` (bottom system inset respected) with
+  `EdgeInsets.only(top: 5, bottom: 2)` and tight icon/label/dot spacing.
 - **Home tab** = `FeedHeader` (Re-Learn wordmark, search icon, For You/Following
   tabs) above a **vertical** `PageView.builder` of full-screen `LearningBite`
   widgets (one bite per swipe, 8 bites in `mock_bites.dart`).
@@ -51,20 +53,64 @@ navigates to `HomeFeedPage`, a shell with:
   "coming soon" SnackBar via `showComingSoon`).
 - `LearningBite` uses `FittedBox(scaleDown)` guards around the headline and the
   body/key-idea block so they scale instead of overflowing on short screens.
-- Design rule: the background is the canvas; whitespace (Spacers) creates
-  hierarchy. No cards, no excess borders/shadows, no gradients.
+- **Reading-progress resume**: a floating `FloatingActionButton.extended`
+  ("Continue Reading") appears on the Home tab while a reading session exists
+  and reopens the Reader at the saved position. The Home feed tab also hosts the
+  vertical bite reel. Design rule: the background is the canvas; whitespace
+  creates hierarchy; no cards, no excess borders/shadows, no gradients.
 
-Content is static mock data — no audio, reader, backend, or auth yet. The first
-bite uses canonical editorial copy ("What do you actually see?" /
-"NOTICE FIRST. INTERPRET SECOND.").
+**Screen 05 — Library** — built (`library_page.dart`):
+- A personal bookshelf: header + search, All/Reading/Finished filter pills, a
+  **Continue Reading card** (session-aware — shows the book actually in
+  progress and its "Continue Reading" button resumes directly in the Reader; it
+  opens Book Detail when no session exists), a 3-up grid of `BookCover`
+  placeholders, and an "Import a book" tile.
+- Shelf books open `BookDetailPage`. Library data is `mock_books.dart`
+  (`LibraryBook` model in `library_book.dart`, 8 titles matching the feed's).
+
+**Full Book Reader** (`features/reader`) — a conventional paged ebook reader:
+- Tap to toggle chrome, horizontal swipes to turn pages, pages hold whole
+  paragraphs. `ReaderTopBar` (back, TOC, search, bookmark, Aa, more) and
+  `ReaderBottomBar` (chapter/page label, overall progress scrub, Read/Learn
+  switch) form the chrome.
+- **Aa settings** (`ReaderSettingsPanel`): serif/sans, font size, line spacing,
+  paper/ivory/deep appearance, brightness — mock local state only.
+- **TOC** (`ReaderTocPanel`) jumps between chapters or to Learning bites.
+- **Learn mode** (`ReaderLearnView`): the book's learning bites as a quiet
+  reading list; selecting text offers "Learn this".
+- Pagination supports reading/resume: `ReaderPage` accepts `initialChapter` /
+  `initialPage` and reports every position change to the `ReadingStore`.
+
+**Screen 08 — Book Detail / Book Home** (`features/book`) — the bridge between
+reading and learning, reached from the Library shelf and continue cards:
+- Cover, title/author, live % complete + gold progress bar, **Start/Continue
+  Reading** + **Learn the Book** buttons, About, a numbered **Chapters** list
+  with READ/READING status, Learning-bites and Discussion panels (mock
+  comments), and a More menu.
+- `BookBitesPage` shows the book's bites as an editorial list (real bites for
+  Sherlock; placeholders for the rest). Content helpers live in
+  `mock_book_details.dart` (`bookDetailFor`, `libraryBookForTitle`,
+  `bitesForBook`, `readerBookFor`).
+
+**Reading progress** — `ReadingStore` (`core/reading`): a ChangeNotifier
+singleton holding one `ReadingSession` (bookTitle/author, chapter & page
+index, progress). The Reader syncs position on page-turn/scrub/chapter-change
+and on dispose (clears on 100%). No persistence yet — session-only, wiped on
+app restart. Continue Reading entries: Home FAB, Library bottom bar
+(`ContinueReadingBar`, shown on the Library tab) and card, and Book Detail.
+
+Content is static mock data — no audio, backend, or auth yet.
 
 ## Architecture
 ```
 lib/
   main.dart                      # ReLearnApp, home = OnboardingPage
-  core/theme/
-    app_colors.dart              # palette constants
-    app_theme.dart               # ThemeData + AppFonts + button themes
+  core/
+    reading/
+      reading_store.dart         # ReadingSession + ReadingStore (ChangeNotifier)
+    theme/
+      app_colors.dart            # palette constants
+      app_theme.dart             # ThemeData + AppFonts + button themes
   features/onboarding/presentation/
     pages/
       onboarding_page.dart       # ONE PageView flow (Page 0, 1, 2)
@@ -81,13 +127,15 @@ lib/
       learning_bite.dart         # LearningBiteData model + BiteVisual enum
                                  #   (category, bookTitle, author, topic/headline,
                                  #   body, keyIdea, listenDuration, visual)
+      library_book.dart          # LibraryBook + BookStatus + BookCoverTone
     data/
       mock_bites.dart            # 8 static prototype bites
+      mock_books.dart            # 8 static shelf books (featuredBook first)
     presentation/
       pages/
-        home_feed_page.dart      # Screen 04 shell + vertical bite feed
+        home_feed_page.dart      # Screen 04 shell + FAB resume + bottom nav
         discover_page.dart       # placeholder (Screen 06, not built)
-        library_page.dart        # placeholder (Screen 05, not built)
+        library_page.dart        # Screen 05 library (shelf, filters, continue)
         me_page.dart             # placeholder (Screen 07, not built)
       widgets/
         learning_bite.dart       # full-screen editorial bite composition
@@ -96,6 +144,32 @@ lib/
         feed_header.dart         # wordmark + search + For You/Following
         bottom_navigation.dart   # Home/Discover/Library/Me tabs
         coming_soon.dart         # showComingSoon() SnackBar helper
+        book_cover.dart          # editorial placeholder cover (tone-based)
+        continue_reading_bar.dart # session-aware "you were reading" bar
+  features/reader/
+    domain/
+      reader_book.dart           # ReaderBook / ReaderChapter / ReaderBite
+    data/
+      mock_reader_book.dart      # Sherlock prototype (4 chapters, 3 bites)
+    presentation/
+      reader_settings.dart       # ReaderSettings + ReaderAppearance palette
+      pages/
+        reader_page.dart         # paged reader + resume (initialChapter/Page)
+      widgets/
+        reader_top_bar.dart      # back/TOC/search/bookmark/Aa/more
+        reader_bottom_bar.dart   # chapter/page, progress scrub, Read/Learn
+        reader_paginator.dart    # paginateParagraphs() text layout
+        reader_settings_panel.dart # Aa sheet (Aa font/size/spacing/theme)
+        reader_toc_panel.dart    # chapter list + bites shortcut
+        reader_learn_view.dart   # Learn mode bite list
+        bite_list_item.dart      # shared quiet bite row (Learn + BookBites)
+  features/book/
+    data/
+      mock_book_details.dart     # per-book descriptions/chapters/reader/bites
+    presentation/
+      pages/
+        book_detail_page.dart    # Book Home: hero, chapters, bites, discussion
+        book_bites_page.dart     # book's learning bites as an editorial list
 ```
 
 ## Design System
@@ -131,3 +205,5 @@ Add TTFs and uncomment the `fonts:` block in `pubspec.yaml` when available.
   If simulators appear ineligible, run `xcodebuild -downloadPlatform iOS`.
 - Platform targets: Android + iOS only.
 - No external packages used.
+- Reading position is in-memory only (`ReadingStore` singleton); a full app
+  restart clears it. Wire persistence (e.g. `shared_preferences`) later.

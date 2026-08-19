@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/reading/reading_store.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../book/data/mock_book_details.dart';
+import '../../../reader/presentation/pages/reader_page.dart';
 import '../../data/mock_bites.dart';
 import '../widgets/bottom_navigation.dart';
+import '../widgets/continue_reading_bar.dart';
 import '../widgets/feed_header.dart';
 import '../widgets/learning_bite.dart';
 import 'discover_page.dart';
@@ -34,9 +40,55 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
           MePage(),
         ],
       ),
-      bottomNavigationBar: BottomNavigation(
-        currentIndex: _tab,
-        onSelect: (i) => setState(() => _tab = i),
+      floatingActionButton: _tab == 0 ? _buildContinueFab() : null,
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (_tab == 2) const ContinueReadingBar(),
+          BottomNavigation(
+            currentIndex: _tab,
+            onSelect: (i) => setState(() => _tab = i),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContinueFab() {
+    return ListenableBuilder(
+      listenable: ReadingStore.instance,
+      builder: (context, _) {
+        final session = ReadingStore.instance.session;
+        if (session == null) return const SizedBox.shrink();
+        return FloatingActionButton.extended(
+          onPressed: () => _openContinueReading(context, session),
+          backgroundColor: AppColors.primaryGreen,
+          foregroundColor: AppColors.paper,
+          elevation: 0,
+          highlightElevation: 2,
+          icon: const Icon(Icons.menu_book_outlined, size: 18),
+          label: const Text(
+            'Continue Reading',
+            style: TextStyle(
+              fontFamily: AppFonts.sans,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _openContinueReading(BuildContext context, ReadingSession session) {
+    final book = libraryBookForTitle(session.bookTitle);
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ReaderPage(
+          book: readerBookFor(book),
+          initialChapter: session.chapterIndex,
+          initialPage: session.pageIndex,
+        ),
       ),
     );
   }
@@ -51,11 +103,22 @@ class _LearningFeedView extends StatefulWidget {
 
 class _LearningFeedViewState extends State<_LearningFeedView> {
   final PageController _controller = PageController();
+  final Set<int> _discussionOpen = {};
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  void _onDiscussionChanged(int index, bool open) {
+    setState(() {
+      if (open) {
+        _discussionOpen.add(index);
+      } else {
+        _discussionOpen.remove(index);
+      }
+    });
   }
 
   @override
@@ -69,9 +132,15 @@ class _LearningFeedViewState extends State<_LearningFeedView> {
             child: PageView.builder(
               controller: _controller,
               scrollDirection: Axis.vertical,
+              physics: _discussionOpen.isEmpty
+                  ? null
+                  : const NeverScrollableScrollPhysics(),
               itemCount: mockLearningBites.length,
-              itemBuilder: (context, index) =>
-                  LearningBite(bite: mockLearningBites[index]),
+              itemBuilder: (context, index) => LearningBite(
+                bite: mockLearningBites[index],
+                onDiscussionChanged: (open) =>
+                    _onDiscussionChanged(index, open),
+              ),
             ),
           ),
         ],

@@ -70,7 +70,9 @@ class _FeedHeaderState extends State<FeedHeader> {
                 fontFamily: AppFonts.sans,
                 fontSize: 14,
                 fontWeight: active ? FontWeight.w600 : FontWeight.w500,
-                color: active ? AppColors.primaryGreen : AppColors.secondaryText,
+                color: active
+                    ? AppColors.primaryGreen
+                    : AppColors.secondaryText,
               ),
             ),
             const SizedBox(height: 5),

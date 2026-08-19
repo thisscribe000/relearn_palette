@@ -30,11 +30,12 @@ class ConceptPage extends StatelessWidget {
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     final size = math
-                        .min(constraints.maxWidth * 0.78, constraints.maxHeight * 0.92)
+                        .min(
+                          constraints.maxWidth * 0.78,
+                          constraints.maxHeight * 0.92,
+                        )
                         .clamp(140.0, 340.0);
-                    return Center(
-                      child: BookLearningIllustration(size: size),
-                    );
+                    return Center(child: BookLearningIllustration(size: size));
                   },
                 ),
               ),

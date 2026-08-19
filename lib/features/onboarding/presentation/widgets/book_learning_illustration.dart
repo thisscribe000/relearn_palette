@@ -123,7 +123,11 @@ class _BookLearningIllustrationPainter extends CustomPainter {
     required double y,
   }) {
     final gap = (to - from) / 3;
-    canvas.drawLine(Offset(from * s, y * s), Offset((from + gap) * s, y * s), line);
+    canvas.drawLine(
+      Offset(from * s, y * s),
+      Offset((from + gap) * s, y * s),
+      line,
+    );
     canvas.drawLine(Offset((to - gap) * s, y * s), Offset(to * s, y * s), line);
   }
 

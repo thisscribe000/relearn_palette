@@ -100,9 +100,21 @@ class _LearningBiteIllustrationPainter extends CustomPainter {
     final radius = 44 * s;
     canvas
       ..drawCircle(lens, radius, line)
-      ..drawLine(Offset(lens.dx - radius, lens.dy), Offset(lens.dx + radius, lens.dy), thin)
-      ..drawLine(Offset(lens.dx, lens.dy - radius), Offset(lens.dx, lens.dy + radius), thin)
-      ..drawLine(Offset(184 * s, 134 * s), Offset(212 * s, 166 * s), line..strokeWidth = 4.5 * s)
+      ..drawLine(
+        Offset(lens.dx - radius, lens.dy),
+        Offset(lens.dx + radius, lens.dy),
+        thin,
+      )
+      ..drawLine(
+        Offset(lens.dx, lens.dy - radius),
+        Offset(lens.dx, lens.dy + radius),
+        thin,
+      )
+      ..drawLine(
+        Offset(184 * s, 134 * s),
+        Offset(212 * s, 166 * s),
+        line..strokeWidth = 4.5 * s,
+      )
       ..drawCircle(lens, 6 * s, fill)
       ..drawCircle(Offset(74 * s, 116 * s), 3 * s, fill)
       ..drawCircle(Offset(210 * s, 100 * s), 3 * s, fill);

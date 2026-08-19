@@ -6,11 +6,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../widgets/reading_journey_illustration.dart';
 
 class GetStartedPage extends StatelessWidget {
-  const GetStartedPage({
-    super.key,
-    this.onGetStarted,
-    this.onSignIn,
-  });
+  const GetStartedPage({super.key, this.onGetStarted, this.onSignIn});
 
   /// Called when the primary CTA is tapped. Defaults to a no-op until
   /// a home route exists; override to navigate.
@@ -42,7 +38,10 @@ class GetStartedPage extends StatelessWidget {
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     final size = math
-                        .min(constraints.maxWidth * 0.78, constraints.maxHeight * 0.92)
+                        .min(
+                          constraints.maxWidth * 0.78,
+                          constraints.maxHeight * 0.92,
+                        )
                         .clamp(140.0, 340.0);
                     return Center(
                       child: ReadingJourneyIllustration(size: size),

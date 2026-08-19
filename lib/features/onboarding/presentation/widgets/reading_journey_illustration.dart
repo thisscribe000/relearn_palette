@@ -101,7 +101,11 @@ class _ReadingJourneyIllustrationPainter extends CustomPainter {
     required double y,
   }) {
     final gap = (to - from) / 3;
-    canvas.drawLine(Offset(from * s, y * s), Offset((from + gap) * s, y * s), line);
+    canvas.drawLine(
+      Offset(from * s, y * s),
+      Offset((from + gap) * s, y * s),
+      line,
+    );
     canvas.drawLine(Offset((to - gap) * s, y * s), Offset(to * s, y * s), line);
   }
 
@@ -147,11 +151,7 @@ class _ReadingJourneyIllustrationPainter extends CustomPainter {
       );
     }
 
-    canvas.drawCircle(
-      Offset(14 * s, -16 * s),
-      2 * s,
-      Paint()..color = accent,
-    );
+    canvas.drawCircle(Offset(14 * s, -16 * s), 2 * s, Paint()..color = accent);
 
     canvas.restore();
   }
@@ -187,6 +187,7 @@ class _ReadingJourneyIllustrationPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _ReadingJourneyIllustrationPainter oldDelegate) =>
-      oldDelegate.ink != ink || oldDelegate.accent != accent;
+  bool shouldRepaint(
+    covariant _ReadingJourneyIllustrationPainter oldDelegate,
+  ) => oldDelegate.ink != ink || oldDelegate.accent != accent;
 }

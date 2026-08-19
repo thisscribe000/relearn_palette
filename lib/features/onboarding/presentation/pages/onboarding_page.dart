@@ -12,11 +12,7 @@ import 'splash_page.dart';
 /// The bottom indicator strip reflects the current page via
 /// [PageController.onPageChanged] and animates as the user swipes.
 class OnboardingPage extends StatefulWidget {
-  const OnboardingPage({
-    super.key,
-    this.onGetStarted,
-    this.onSignIn,
-  });
+  const OnboardingPage({super.key, this.onGetStarted, this.onSignIn});
 
   /// Called when the primary CTA on the final page is tapped.
   /// Defaults to navigating to [HomeFeedPage].
@@ -46,9 +42,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
       widget.onGetStarted!();
       return;
     }
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const HomeFeedPage()),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => const HomeFeedPage()));
   }
 
   @override
@@ -66,9 +62,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   0 => const SplashPage(),
                   1 => const ConceptPage(),
                   _ => GetStartedPage(
-                      onGetStarted: _openHomeFeed,
-                      onSignIn: widget.onSignIn,
-                    ),
+                    onGetStarted: _openHomeFeed,
+                    onSignIn: widget.onSignIn,
+                  ),
                 },
               ),
             ),
