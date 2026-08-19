@@ -49,8 +49,8 @@ enum _ReaderMode { read, learn }
 class _ReaderPageState extends State<ReaderPage> {
   ReaderSettings _settings = const ReaderSettings();
   _ReaderMode _mode = _ReaderMode.read;
-  late int _chapter = widget.initialChapter;
-  late int _page = widget.initialPage;
+  late int _chapter;
+  late int _page;
   int _chapterPageCount = 1;
   bool _controlsVisible = true;
   bool _bookmarked = false;
@@ -60,6 +60,20 @@ class _ReaderPageState extends State<ReaderPage> {
   int _totalPages = 1;
 
   ReadingStore get _store => widget.store ?? ReadingStore.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    final session = _store.session;
+    final resume = session != null && session.bookTitle == widget.book.title
+        ? session
+        : null;
+    _chapter = (resume?.chapterIndex ?? widget.initialChapter).clamp(
+      0,
+      widget.book.chapters.length - 1,
+    );
+    _page = math.max(0, resume?.pageIndex ?? widget.initialPage);
+  }
 
   @override
   void dispose() {
@@ -222,11 +236,23 @@ class _ReaderPageState extends State<ReaderPage> {
                 ).length;
           offsets.add(acc);
         }
+        final totalPages = math.max(1, acc);
+        final chapterPageCount = pages.length;
+        // Pagination happens during layout, after the chrome is built, so the
+        // bottom bar shows stale 0% / "x/1" on the very first frame. Refresh
+        // once the real totals are known.
+        if (_totalPages != totalPages ||
+            _chapterPageCount != chapterPageCount) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) setState(() {});
+          });
+        }
         _chapterOffsets = offsets;
-        _totalPages = math.max(1, acc);
-        _chapterPageCount = pages.length;
+        _totalPages = totalPages;
+        _chapterPageCount = chapterPageCount;
 
-        final page = math.min(_page, pages.length - 1);
+        final page = _page.clamp(0, math.max(0, pages.length - 1)).toInt();
+        if (_page != page) _page = page;
 
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
