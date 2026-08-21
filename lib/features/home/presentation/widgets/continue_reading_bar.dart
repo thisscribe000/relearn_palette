@@ -4,7 +4,7 @@ import '../../../../core/reading/reading_store.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../book/data/mock_book_details.dart';
-import '../../../reader/presentation/pages/reader_page.dart';
+import '../../../reader/presentation/reader_launcher.dart';
 
 /// Compact "you were reading this" bar shown above the bottom navigation.
 ///
@@ -24,6 +24,10 @@ class ContinueReadingBar extends StatelessWidget {
         final session = readingStore.session;
         if (session == null) return const SizedBox.shrink();
         final percent = (session.progress * 100).round();
+        final book = libraryBookForTitle(session.bookTitle);
+        final positionLabel = book.isPdf
+            ? 'Page ${session.pageIndex + 1} · $percent%'
+            : 'Chapter ${session.chapterIndex + 1} · $percent%';
 
         return Material(
           color: AppColors.paper,
@@ -63,7 +67,7 @@ class ContinueReadingBar extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Chapter ${session.chapterIndex + 1} · $percent%',
+                          positionLabel,
                           style: const TextStyle(
                             fontFamily: AppFonts.sans,
                             fontSize: 11.5,
@@ -101,14 +105,6 @@ class ContinueReadingBar extends StatelessWidget {
 
   void _openReader(BuildContext context, ReadingSession session) {
     final book = libraryBookForTitle(session.bookTitle);
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => ReaderPage(
-          book: readerBookFor(book),
-          initialChapter: session.chapterIndex,
-          initialPage: session.pageIndex,
-        ),
-      ),
-    );
+    openBookReader(context, book, resume: session);
   }
 }

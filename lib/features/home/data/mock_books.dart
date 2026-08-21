@@ -6,9 +6,11 @@ final LibraryBook featuredBook = mockLibraryBooks.first;
 /// Static prototype books shown on the Library shelf.
 ///
 /// Titles mirror the canonical books already used in [mockLearningBites]
-/// so the Library and the Learning Feed stay consistent.
+/// so the Library and the Learning Feed stay consistent. The shelf itself
+/// is mutable at runtime through `LibraryStore`; this list only seeds it.
 const mockLibraryBooks = <LibraryBook>[
   LibraryBook(
+    id: 'sherlock-holmes',
     title: 'The Adventures of Sherlock Holmes',
     author: 'Arthur Conan Doyle',
     status: BookStatus.reading,
@@ -16,8 +18,11 @@ const mockLibraryBooks = <LibraryBook>[
     tone: BookCoverTone.deepGreen,
     biteCount: 1,
     biteDuration: '0:38',
+    year: '1892',
+    category: 'Mystery',
   ),
   LibraryBook(
+    id: 'meditations',
     title: 'Meditations',
     author: 'Marcus Aurelius',
     status: BookStatus.reading,
@@ -25,8 +30,11 @@ const mockLibraryBooks = <LibraryBook>[
     tone: BookCoverTone.warmCream,
     biteCount: 1,
     biteDuration: '0:37',
+    year: 'c. 180',
+    category: 'Philosophy',
   ),
   LibraryBook(
+    id: 'alice-wonderland',
     title: "Alice's Adventures in Wonderland",
     author: 'Lewis Carroll',
     status: BookStatus.reading,
@@ -34,8 +42,11 @@ const mockLibraryBooks = <LibraryBook>[
     tone: BookCoverTone.sand,
     biteCount: 1,
     biteDuration: '0:45',
+    year: '1865',
+    category: "Children's",
   ),
   LibraryBook(
+    id: 'art-of-war',
     title: 'The Art of War',
     author: 'Sun Tzu',
     status: BookStatus.reading,
@@ -43,8 +54,11 @@ const mockLibraryBooks = <LibraryBook>[
     tone: BookCoverTone.rust,
     biteCount: 1,
     biteDuration: '0:38',
+    year: '5th c. BC',
+    category: 'Strategy',
   ),
   LibraryBook(
+    id: 'alchemist',
     title: 'The Alchemist',
     author: 'Paulo Coelho',
     status: BookStatus.finished,
@@ -52,8 +66,11 @@ const mockLibraryBooks = <LibraryBook>[
     tone: BookCoverTone.clay,
     biteCount: 1,
     biteDuration: '0:40',
+    year: '1988',
+    category: 'Fiction',
   ),
   LibraryBook(
+    id: 'little-prince',
     title: 'The Little Prince',
     author: 'Antoine de Saint-Exupéry',
     status: BookStatus.finished,
@@ -61,8 +78,11 @@ const mockLibraryBooks = <LibraryBook>[
     tone: BookCoverTone.sage,
     biteCount: 1,
     biteDuration: '0:36',
+    year: '1943',
+    category: 'Fiction',
   ),
   LibraryBook(
+    id: 'sapiens',
     title: 'Sapiens',
     author: 'Yuval Noah Harari',
     status: BookStatus.finished,
@@ -70,8 +90,11 @@ const mockLibraryBooks = <LibraryBook>[
     tone: BookCoverTone.ink,
     biteCount: 1,
     biteDuration: '0:41',
+    year: '2011',
+    category: 'History',
   ),
   LibraryBook(
+    id: 'psychology-money',
     title: 'The Psychology of Money',
     author: 'Morgan Housel',
     status: BookStatus.toRead,
@@ -79,5 +102,7 @@ const mockLibraryBooks = <LibraryBook>[
     tone: BookCoverTone.olive,
     biteCount: 1,
     biteDuration: '0:39',
+    year: '2020',
+    category: 'Finance',
   ),
 ];

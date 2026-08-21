@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/library/library_store.dart';
 import '../../../../core/reading/reading_store.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../add_book/presentation/pages/add_book_page.dart';
 import '../../data/mock_books.dart';
 import '../../domain/library_book.dart';
 import '../../../book/data/mock_book_details.dart';
 import '../../../book/presentation/pages/book_detail_page.dart';
 import '../../../book/presentation/pages/learning_bites_page.dart';
-import '../../../reader/presentation/pages/reader_page.dart';
+import '../../../reader/presentation/reader_launcher.dart';
 import '../widgets/book_cover.dart';
 import '../widgets/coming_soon.dart';
 
@@ -37,74 +39,78 @@ class _LibraryPageState extends State<LibraryPage> {
 
   List<LibraryBook> get _books {
     final status = _statuses[_filter];
-    if (status == null) return mockLibraryBooks;
-    return mockLibraryBooks.where((b) => b.status == status).toList();
+    final books = LibraryStore.instance.books;
+    if (status == null) return books;
+    return books.where((b) => b.status == status).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       bottom: false,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final width = constraints.maxWidth;
-          final columns = width >= 560 ? 4 : 3;
-          const horizontalPadding = 20.0;
-          const gridSpacing = 16.0;
-          final cellWidth =
-              (width - horizontalPadding * 2 - gridSpacing * (columns - 1)) /
-              columns;
-          final coverHeight = cellWidth / 0.66;
-          final cellHeight = coverHeight + 48;
+      child: ListenableBuilder(
+        listenable: LibraryStore.instance,
+        builder: (context, _) => LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
+            final columns = width >= 560 ? 4 : 3;
+            const horizontalPadding = 20.0;
+            const gridSpacing = 16.0;
+            final cellWidth =
+                (width - horizontalPadding * 2 - gridSpacing * (columns - 1)) /
+                columns;
+            final coverHeight = cellWidth / 0.66;
+            final cellHeight = coverHeight + 48;
 
-          return CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(child: _buildHeader(context)),
-              SliverToBoxAdapter(child: _buildFilters()),
-              SliverToBoxAdapter(
-                child: _ContinueReadingCard(book: featuredBook),
-              ),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
-                  child: Text(
-                    'Your Books',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontFamily: AppFonts.serif,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0,
-                      color: AppColors.primaryGreen,
+            return CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(child: _buildHeader(context)),
+                SliverToBoxAdapter(child: _buildFilters()),
+                SliverToBoxAdapter(
+                  child: _ContinueReadingCard(book: featuredBook),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+                    child: Text(
+                      'Your Books',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontFamily: AppFonts.serif,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0,
+                        color: AppColors.primaryGreen,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
-                sliver: SliverGrid(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: columns,
-                    crossAxisSpacing: gridSpacing,
-                    mainAxisSpacing: 20,
-                    mainAxisExtent: cellHeight,
-                  ),
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    if (index == _books.length) {
-                      return _AddBookTile(
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+                  sliver: SliverGrid(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: columns,
+                      crossAxisSpacing: gridSpacing,
+                      mainAxisSpacing: 20,
+                      mainAxisExtent: cellHeight,
+                    ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      if (index == _books.length) {
+                        return _AddBookTile(
+                          cellWidth: cellWidth,
+                          coverHeight: coverHeight,
+                        );
+                      }
+                      return _ShelfBook(
+                        book: _books[index],
                         cellWidth: cellWidth,
-                        coverHeight: coverHeight,
                       );
-                    }
-                    return _ShelfBook(
-                      book: _books[index],
-                      cellWidth: cellWidth,
-                    );
-                  }, childCount: _books.length + 1),
+                    }, childCount: _books.length + 1),
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -358,15 +364,7 @@ class _ContinueReadingCard extends StatelessWidget {
     ReadingSession? session,
   ) {
     if (session != null) {
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => ReaderPage(
-            book: readerBookFor(effective),
-            initialChapter: session.chapterIndex,
-            initialPage: session.pageIndex,
-          ),
-        ),
-      );
+      openBookReader(context, effective, resume: session);
     } else {
       Navigator.of(context).push(
         MaterialPageRoute<void>(
@@ -437,7 +435,9 @@ class _AddBookTile extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InkWell(
-          onTap: () => showComingSoon(context, 'Import a book'),
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(builder: (_) => const AddBookPage()),
+          ),
           child: Container(
             width: cellWidth,
             height: coverHeight,
@@ -458,7 +458,7 @@ class _AddBookTile extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         const Text(
-          'Import a book',
+          'Add a Book',
           style: TextStyle(
             fontFamily: AppFonts.sans,
             fontSize: 12,

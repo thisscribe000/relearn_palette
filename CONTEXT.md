@@ -16,7 +16,10 @@ and remember what they read.
 
 ## Current Status
 Implemented so far (onboarding + Home Learning Feed + Library + a full Book
-Reader + Book Detail flow with live, session-only reading-position resume;
+Reader + Book Detail flow with live, session-only reading-position resume +
+an Add Book / mock catalog search flow + REAL PDF IMPORT: users can pick a
+PDF from their device, it is copied into app storage, appears as a normal
+Library book, and opens in a native PDF reader with Continue Reading resume;
 no backend/auth/AI/audio yet):
 
 **Onboarding** — a single horizontally swipeable flow with three pages inside ONE
@@ -107,6 +110,66 @@ and on dispose (clears on 100%). No persistence yet — session-only, wiped on
 app restart. Continue Reading entries: Home FAB, Library bottom bar
 (`ContinueReadingBar`, shown on the Library tab) and card, and Book Detail.
 
+**Add Book / Import** (`features/add_book`) — how books enter the Library:
+- Entry point: the shelf's "Add a Book" tile (last grid cell) opens
+  `AddBookPage` — serif "Add a Book / Find something to read" header, search
+  field, an OR hairline divider, an **Import a PDF** tile, then Suggested
+  Books.
+- Search filters the local mock catalog (`mock_catalog.dart`, 11 titles =
+  the 8 shelf books + Pride and Prejudice, The Great Gatsby, The Picture of
+  Dorian Gray) by title OR author, case-insensitive. Empty query shows all;
+  no matches shows a quiet "No books found" empty state. Result rows: small
+  `BookCover`, serif title, author, year · category meta, and an Add button
+  (or IN LIBRARY label when already shelved). Tapping a row opens
+  `BookDetailPage` as a preview.
+- **Book Detail preview state**: when the book is not on the shelf, the hero
+  hides % complete/progress and shows "Not in your library · year · category
+  · N chapters" with a single **Add to Library** button; adding flips it live
+  into the normal Start Reading + Learn the Book state (snackbar confirms).
+- **Library state** — `LibraryStore` (`core/library`): ChangeNotifier
+  singleton seeded from `mockLibraryBooks`; `add()` prevents duplicates by
+  stable `LibraryBook.id`. Library grid listens to it; `libraryBookForTitle`
+  resolves through it so Continue Reading works for newly added books too.
+  In-memory only — swap for a database later without touching consumers.
+- **Real PDF import** (`pdf_import_service.dart`) — Import a PDF opens the
+  system file picker (`.pdf` filtered), validates the pick, and copies the
+  file into `<app documents>/imported_books/` (unique-name collision guard).
+  The book record uses a stable id of `pdf:<filename>:<size>` so re-importing
+  the same file shows an "Already in Library / Open Book" sheet instead of
+  duplicating. Title is cleaned from the filename (`the_great_gatsby.pdf` →
+  "The Great Gatsby"); author falls back to "Unknown Author"; cover tone is
+  derived deterministically from the title. A processing bottom sheet covers
+  pick → copy → done, with friendly failure states (no stack traces).
+- **PDF books** — `LibraryBook.source` (`BookSource.mock | .pdf`) + optional
+  `filePath`. Imported books flow through the normal Library/Book Detail:
+  Book Detail hides the mock Chapters list, shows an imported-about line and
+  a "Learning Bites — once processed" panel; Learn the Book opens a quiet
+  placeholder sheet (no fake bites). `openBookReader` (reader_launcher.dart)
+  routes: pdf → `PdfReaderPage` (native flutter_pdfview, vertical scroll,
+  pinch zoom, page scrub), mock → existing paged `ReaderPage`. PDF progress
+  reports to the same `ReadingStore` (chapterIndex 0, pageIndex = pdf page,
+  progress = (page+1)/total) so Continue Reading bar/FAB/card resume at the
+  last page; reaching the final page marks finished exactly like text books.
+- **PDF content extraction** (`pdf_content_store.dart` + `pdfrx`) — when an
+  imported book is added, its text is extracted once via PDFium
+  (`pdf_text_extractor.dart`: `PdfDocument.openFile` → per-page `loadText`,
+  page boundaries preserved) and persisted as JSON beside the PDF
+  (`<app documents>/imported_books/content/<id>.json`). Conservative cleaning
+  (`pdf_chapter_detector.dart`): page-number lines dropped, repeated running
+  headers/footers stripped (>=60% of pages), soft-wrapped lines rejoined with
+  de-hyphenation, whitespace collapsed — wording never rewritten. Chapter
+  detection is deterministic (regex on "Chapter N / PART TWO / Prologue…"
+  heading lines); no matches → a single "Full Book" fallback chapter. Scanned/
+  image-only PDFs (<200 chars or <30 chars/page avg) are detected and marked
+  `unsupported`; failures are marked `failed`. Both persist — extraction runs
+  at most once per book, never auto-retried. Import sheet shows staged labels
+  ("Extracting text…" → "Organizing chapters…") and a status-aware result
+  (scanned → OCR-later note; the book is always added & readable). Book
+  Detail's Learning Bites panel reflects live status (PROCESSED / SCANNED
+  PAGES · OCR NEEDED / PROCESSING FAILED); More menu gains an "Inspect
+  extracted content" debug screen for imported books showing status,
+  chapters, and text peeks. No OCR yet — scanned books stay read-only.
+
 Content is static mock data — no audio, backend, or auth yet.
 
 ## Architecture
@@ -116,6 +179,8 @@ lib/
   core/
     reading/
       reading_store.dart         # ReadingSession + ReadingStore (ChangeNotifier)
+    library/
+      library_store.dart         # LibraryStore (ChangeNotifier) — the shelf
     theme/
       app_colors.dart            # palette constants
       app_theme.dart             # ThemeData + AppFonts + button themes
@@ -135,7 +200,9 @@ lib/
       learning_bite.dart         # LearningBiteData model + BiteVisual enum
                                  #   (category, bookTitle, author, topic/headline,
                                  #   body, keyIdea, listenDuration, visual)
-      library_book.dart          # LibraryBook + BookStatus + BookCoverTone
+      library_book.dart          # LibraryBook (stable id, year, category,
+                                 #   BookSource mock|pdf, filePath)
+                                 #   + BookStatus + BookCoverTone
     data/
       mock_bites.dart            # 8 static prototype bites
       mock_books.dart            # 8 static shelf books (featuredBook first)
@@ -161,8 +228,10 @@ lib/
       mock_reader_book.dart      # Sherlock prototype (4 chapters, 3 bites)
     presentation/
       reader_settings.dart       # ReaderSettings + ReaderAppearance palette
+      reader_launcher.dart       # openBookReader(): routes pdf vs mock
       pages/
         reader_page.dart         # paged reader + resume (initialChapter/Page)
+        pdf_reader_page.dart     # native PDF reader for imported books
       widgets/
         reader_top_bar.dart      # back/TOC/search/bookmark/Aa/more
         reader_bottom_bar.dart   # chapter/page, progress scrub, Read/Learn
@@ -183,6 +252,21 @@ lib/
         learning_bites_page.dart # full-screen vertical Learning Bites flow
       widgets/
         book_discussion_sheet.dart # shared mock Discussion bottom sheet
+  features/add_book/
+    data/
+      mock_catalog.dart          # searchable catalog (shelf + 3 classics)
+      pdf_import_service.dart    # pickPdf()/importPdf(): picker, validation,
+                                 #   copy to app docs, title/id derivation
+      pdf_text_extractor.dart    # pdfrx/PDFium per-page text extraction
+      pdf_chapter_detector.dart  # conservative cleaning + regex chapter split
+      pdf_content_store.dart     # extract-once orchestrator; JSON persistence,
+                                 #   scanned/failed detection, memory cache
+    domain/
+      extracted_book_content.dart # ExtractedBookContent/Chapter + status enum
+    presentation/
+      pages/
+        add_book_page.dart       # search, Import PDF sheet, results list
+        extracted_content_preview_page.dart # debug: status/chapters/text peeks
 ```
 
 ## Design System
@@ -217,6 +301,9 @@ Add TTFs and uncomment the `fonts:` block in `pubspec.yaml` when available.
 - Xcode 26.6 requires the iOS 26.5 simulator runtime.
   If simulators appear ineligible, run `xcodebuild -downloadPlatform iOS`.
 - Platform targets: Android + iOS only.
-- No external packages used.
+- External packages: `file_picker` (system PDF picker), `flutter_pdfview`
+  (native PDF rendering), `pdfrx` (PDFium text extraction for imported
+  books; viewer widgets unused — flutter_pdfview stays the reading surface),
+  `path_provider` (app documents dir).
 - Reading position is in-memory only (`ReadingStore` singleton); a full app
   restart clears it. Wire persistence (e.g. `shared_preferences`) later.

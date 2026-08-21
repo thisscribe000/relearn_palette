@@ -1,4 +1,4 @@
-import '../../home/data/mock_books.dart';
+import '../../../core/library/library_store.dart';
 import '../../home/domain/library_book.dart';
 import '../../reader/data/mock_reader_book.dart';
 import '../../reader/domain/reader_book.dart';
@@ -95,6 +95,42 @@ const _details = <String, BookDetailInfo>{
       'The Seduction of Pessimism',
     ],
   ),
+  'Pride and Prejudice': BookDetailInfo(
+    description:
+        'Elizabeth Bennet prides herself on reading people accurately — until '
+        'Darcy proves her wrong. A study of first impressions, prejudice, and '
+        'the humility of revising a judgement.',
+    chapters: [
+      'First Impressions',
+      'The Netherfield Ball',
+      'A Reckoning at Hunsford',
+      'Pemberley',
+    ],
+  ),
+  'The Great Gatsby': BookDetailInfo(
+    description:
+        'Nick Carraway watches his neighbour throw lavish parties for a '
+        'single unreachable hope — a luminous warning about longing, money, '
+        'and the past we cannot repeat.',
+    chapters: [
+      'The Green Light',
+      'Gatsby\u2019s Parties',
+      'The Valley of Ashes',
+      'The Last Laugh',
+    ],
+  ),
+  'The Picture of Dorian Gray': BookDetailInfo(
+    description:
+        'A beautiful young man stays flawless while his portrait ages in his '
+        'place — Wilde\u2019s sharp fable about vanity, influence, and the '
+        'cost of a life without consequences.',
+    chapters: [
+      'The Portrait',
+      'Sibyl Vane',
+      'The Yellow Book',
+      'The Confession',
+    ],
+  ),
 };
 
 const _fallbackInfo = BookDetailInfo(
@@ -106,12 +142,14 @@ const _fallbackInfo = BookDetailInfo(
 
 BookDetailInfo bookDetailFor(String title) => _details[title] ?? _fallbackInfo;
 
-/// Finds the library book for a title; falls back to the featured book.
+/// Finds the library book for a title, including books added at runtime;
+/// falls back to the featured book.
 LibraryBook libraryBookForTitle(String title) {
-  for (final book in mockLibraryBooks) {
+  final books = LibraryStore.instance.books;
+  for (final book in books) {
     if (book.title == title) return book;
   }
-  return mockLibraryBooks.first;
+  return books.first;
 }
 
 /// Learning bites for a book. Real bites for the featured title; a single

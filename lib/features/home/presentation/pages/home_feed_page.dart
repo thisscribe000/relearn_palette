@@ -4,7 +4,7 @@ import '../../../../core/reading/reading_store.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../book/data/mock_book_details.dart';
-import '../../../reader/presentation/pages/reader_page.dart';
+import '../../../reader/presentation/reader_launcher.dart';
 import '../../data/mock_bites.dart';
 import '../widgets/bottom_navigation.dart';
 import '../widgets/continue_reading_bar.dart';
@@ -82,15 +82,7 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
 
   void _openContinueReading(BuildContext context, ReadingSession session) {
     final book = libraryBookForTitle(session.bookTitle);
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => ReaderPage(
-          book: readerBookFor(book),
-          initialChapter: session.chapterIndex,
-          initialPage: session.pageIndex,
-        ),
-      ),
-    );
+    openBookReader(context, book, resume: session);
   }
 }
 
